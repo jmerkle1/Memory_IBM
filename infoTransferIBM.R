@@ -1,8 +1,6 @@
 library(igraph)
 library(Matrix)
 
-this is a test
-
 #sexRatio <- 
 h <- .10 #increase in probability of death for uninformed
 nl <- 0.001 # naive learning probability
@@ -113,7 +111,10 @@ for(i in seq(t)){ # loop for each time increment
     
     numOfInteract <- rpois(1, sum(edgeMatrix[j,]))
     for(k in 1:numOfInteract){
-    socialInter <- runif(1) <= (si * ind[[j]]$boldness * length(is.alive)/K) # calculate a social interaction probability for each individual that is alive
+    socialInter <- (si * ind[[j]]$boldness * [ADD IN BOLDNESS OF OTHER IDs] * length(is.alive)/K) # calculate a social interaction probability for each individual that is alive
+    interactions <- rbinom(length(socialInter), 1, socialInter)
+    # add in whether you had interaction in previous time step with someone??
+    
     if(socialInter){
       uniform <- dunif(1:length(is.alive), min = 0, max =  length(is.alive))
       edgesOfInd <- length(which(edgeMatrix[j,] == 1)) #number of connected individuals
