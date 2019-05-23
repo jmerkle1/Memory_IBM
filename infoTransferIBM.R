@@ -151,11 +151,14 @@ for(i in seq(t)){ # loop for each time increment
       len.ind <- length(ind)
       ind[[len.ind+1]] <- list(alive=1, age=0, informed= runif(1) <= round(vertTransmission * rnorm(1, ind[[j]]$informed, .25 * (1 - ind[[j]]$recruitmentMod))), boldness = ind[[j]]$boldness * ind[[j]]$recruitmentMod, recruitmentMod = round(vertTransmission * rnorm(1, ind[[j]]$recruitmentMod, rbeta(1, .6, 3)))) # create offspring, inherits informed status of parent
       edgeMatrix <- edgeMatrix[nrow(edgeMatrix) + 1, ncol(edgeMatrix) + 1]
-      numinheritedConnections <- ind[[j]]$recruitmentMod * sum(edgeMatrix[j,])
-      inheritedConnections <- sample(numinheritedConnections, which(edgeMatrix[j,] == 1))
+      numinheritedConnections <- ind[[j]]$recruitmentMod * sum(edgeMatrix[j,]) #Need to add vertTRansmission here!
+      inheritedConnections <- sample(numinheritedConnections, which(edgeMatrix[j,] == 1))   #give the young the same interactions of mom if verTransmission is 1.
       edgeMatrix[nrow(edgeMatrix), inheritedConnections] <- 1
       }
     death <- runif(1) <= ind[[j]]$age/maxAge * (1 - length(is.alive)/K) + if(ind[[j]]$informed == 0)h # calculate a death probability for each individual 
+    
+    #### MONITOR ANOTHER DATABASE OF BIRTH TIME STEP AND DEATH TIME STEP!!!!!!
+    
     if(death){
       ind[[j]]$alive <- 0 # if death, reset alive = 0
       edgeMatrix[j,] <- 0
