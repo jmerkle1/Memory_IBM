@@ -1,6 +1,7 @@
 library(igraph)
 library(Matrix)
 
+this is a test
 
 #sexRatio <- 
 h <- .10 #increase in probability of death for uninformed
