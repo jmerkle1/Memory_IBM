@@ -8,6 +8,7 @@ K <- 100 # carrying capacity
 N0 <- 50 # starting number of individuals
 t <- 100 # time of simulation
 d <- read.csv(file = "C:/Users/Zach/Documents/GitHub/Social-Learning-Pop-Crash-IBM/ageClass_Test.csv", colClasses = c("numeric", "numeric", "numeric", "numeric")) #vector of age based birth and death rate
+d <- read.csv(file = "C:/Users/jmerkle/Documents/GitHub/Memory_IBM/ageClass_Test.csv", colClasses = c("numeric", "numeric", "numeric", "numeric")) #vector of age based birth and death rate
 colnames(d) <- c("age", "ageClass", "birthRate", "survivalRate") #set column names of the age class, vitals data
 maxAgeClass <- max(d$ageClass) #max age class in order to get a proportion of age class for age class based rates of naive learning
 vertTransmission <- 0 #0 if false, 1 if true, vertical transmission of interactions
