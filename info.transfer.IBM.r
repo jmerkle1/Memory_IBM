@@ -13,7 +13,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
                               age.distr.lamba=5, # lambda value for starting age distribution based on poison distribution
                               informed.distr.beta=c(.5, 1), # probability of knowing information, beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
                               bold.distr.beta=c(2, 2), # probability of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-                              birthdeath.file="C:/Users/jmerkle/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate
+                              birthdeath.file="C:/Users/jmerkle/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
                               result.folder="C:/Users/jmerkle/Desktop/results", #an empty folder where results will be saved.
                               set_seed=TRUE, # want to make results reproducible? Then set as TRUE
                               save_at_each_iter=TRUE, #should it write all results to file at each time step?
@@ -24,7 +24,8 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
     stop("You must install the following packages: igraph and Matrix.")
   require(igraph)
   require(Matrix)
-
+  
+  #identify initial time
   t1 <- Sys.time()
   print(paste0("start time: ",t1,"."))
   
@@ -85,6 +86,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
   interactions <- list()
   interactions[[1]] <- interactionMatrix
   
+  #this dataframe will be saved out at every t iteration no matter what.
   tosave <- data.frame(time.stamp=Sys.time(), t=0, pop.size=length(pop[[1]]),births=NA, deaths=NA,
                        frac.informed=frac.informed[1], med.age=med.age[1])
   
@@ -178,7 +180,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
     write.csv(tosave, paste0(result.folder,"/population_stats.csv"), row.names = FALSE)
     
     #save out all the main files?
-    if(save_at_each_iter == TRUE){
+    if(save_at_each_iter){
       save(interactions, file = paste0(result.folder,"/interaction_matricies.RData"))
       save(pop, file = paste0(result.folder,"/population_data.RData"))  #don't really need this if ind data is written out
       save(ind, file = paste0(result.folder,"/individual_data.RData"))
