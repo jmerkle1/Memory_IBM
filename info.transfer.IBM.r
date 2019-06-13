@@ -4,8 +4,9 @@
 
 
 info.transfer.IBM <- function(h=0.10, #increase in probability of death for uninformed
-                              nl=0.01, # naive learning probability
-                              si=10, # social interaction probability
+                              nl=0.01, # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
+                              si=10, # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
+                              infotransfer=0.8, # given an interaction, what is the probability that information is transfered (min=0, max=1)
                               K=100, # carrying capacity
                               N0=50, # starting number of individuals
                               t=100, # time of simulation
@@ -17,7 +18,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
                               result.folder="C:/Users/jmerkle/Desktop/results", #an empty folder where results will be saved.
                               set_seed=TRUE, # want to make results reproducible? Then set as TRUE
                               save_at_each_iter=TRUE, #should it write all results to file at each time step?
-                              vertTransmission=0){ #0 if false, 1 if true, vertical transmission of interactions
+                              vertTransmission=0){ #0 if false, 1 if true, vertical transmission of info status
 
   #manage packages
   if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)
@@ -58,7 +59,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
     ind[[i]]$age <- rpois(1, age.distr.lamba) #poisson distribution of age centered around 5
     informedProb <- rbeta(1, informed.distr.beta[1], informed.distr.beta[2]) #probability of knowing information, beta distribution ranges from 0 to 1
     ageClass <- d$ageClass[which(d$age == ind[[i]]$age)]
-    ind[[i]]$informed <- round(informedProb + informedProb * (ageClass/maxAgeClass)) #0 if false, 1 if true, modified by age class proportion 
+    ind[[i]]$informed <- round((informedProb + informedProb * (ageClass/maxAgeClass))/2) #0 if false, 1 if true, modified by age class proportion (we standardize so the values range from 0 to 1, based on the range could be 0 to 2)
     ind[[i]]$boldness <- rbeta(1, bold.distr.beta[1], bold.distr.beta[2]) #beta distribution, ranges from 0 to 1
     ind[[i]]$mother <- 0
     ind[[i]]$birthYr <- 0
@@ -76,8 +77,8 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
   pop[[1]] <- which(sapply(ind, function(x) x$alive) == 1)
   
   frac.informed <- NaN * time # fraction of population that is informed
-  info <- sapply(ind, function(x) x$informed)   #NOTE: once we get the informed values fixed so they are only 0 or 1, we can simply do a mean here.
-  frac.informed[1] <- sum(info  == 1) / length(info)
+  info <- sapply(ind, function(x) x$informed)   
+  frac.informed[1] <- mean(info)
   
   med.age <- NaN * time
   ages <- sapply(ind, function(x) x$age)
@@ -100,60 +101,62 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
                                 nrow = length(seq(is.alive)),
                                 ncol = length(seq(is.alive)), sparse = TRUE)
     for(j in is.alive){ #loop for each alive individual
-      
       curIndividual <- ind[[j]] #assigns current individual
-      indexJ <- which(is.alive == j)    #NOTE: Is indexJ aways the same value as j?
+      indexJ <- which(is.alive == j)    
       ageClass <- d$ageClass[which(d$age == curIndividual$age)] #age class of current
       birthRate <- d$birthRate[which(d$age == curIndividual$age)] #birth rate of current age class
       survivalRate <- d$survivalRate[which(d$age == curIndividual$age)] #survival rate of current age class
       
-      naiveLearn <- runif(1) <= (nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
-      if(naiveLearn){   #if this animal has knowledge, then add a 1 to informed column
+      curIndividual$informed <- rbinom(1, 1, nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
+
+      socialPool <- data.frame(is.alive[-j], boldness[-j]) #pool of available individuals to socialize with
+      socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * ifelse(length(is.alive)>=K, 1, length(is.alive)/K) * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
+      colnames(socialPool) <- c("is.alive", "boldness", "numInteractions")
+      
+      socialPool$intIDinformed <- sapply(ind[socialPool$is.alive], function(x) x$informed)
+
+      interactionMatrix[-indexJ,indexJ] <- socialPool$numInteractions #update interaction matrix
+      interactionMatrix[indexJ,-indexJ] <- socialPool$numInteractions #update interaction matrix
+      socialPool$calc <- ifelse(curIndividual$informed==0 & socialPool$intIDinformed == 0, 0, 1)
+      socialPool$infotranser <- do.call(c, lapply(1:nrow(socialPool), function(ii){
+        return(ifelse(sum(rbinom(socialPool$numInteractions[ii], 1, infotransfer))>0,1,0))
+      }))
+      socialPool$infotranser <- socialPool$infotranser*socialPool$calc
+      if(curIndividual$informed==0 & sum(socialPool$infotranser)>0){   #if status is 0 or there was an interaction wher info was transfered, then put a 1 in there
         curIndividual$informed <- 1
       }
       
-      socialPool <- data.frame(is.alive[-j], boldness[-j]) #pool of available individuals to socialize with
-      socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * (length(is.alive)/K) * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
-      colnames(socialPool) <- c("is.alive", "boldness", "numInteractions")
+      socialPool$infotranser <- ifelse(socialPool$intIDinformed+socialPool$infotranser>0,1,0)  # now we need to update the interacting individuals and their info status
       for(g in 1:nrow(socialPool)){ #loop through interaction individuals
         indexG <- which(is.alive == socialPool$is.alive[g])
-        interIndividual <- ind[[socialPool$is.alive[g]]] #current interaction individual
-        numInterInd <- socialPool$numInteractions[g]
-        if((((1 - interIndividual$informed)+(1 - curIndividual$informed) > 0))){ # if current ind or current interaction ind is informed, make them informed
-          curIndividual$informed <- 1
-          interIndividual$informed <- 1
-        }
-        interactionMatrix[indexG, indexJ] <- numInterInd #update interaction matrix
-        ind[[indexG]] <- interIndividual #update current interaction individual in total individuals dataset
+        ind[[indexG]]$informed <- socialPool$infotranser[g] #update current interaction individual in total individuals dataset
       }
-      birth <- runif(1) <= (birthRate * (1 - length(is.alive)/K)) # calculate a birth probability for each individual that is alive
-      if(birth && (ind[[j]]$sex == 1)){ #checks for succesful birth and female sex
+      
+      # birth section
+      birth <- birthRate + birthRate * (1 - length(is.alive)/K) # calculate a birth probability for each individual that is alive
+      birth <- rbinom(1,1, ifelse(birth<=0,0,birth))
+      if(birth==1 && (ind[[j]]$sex == 1)){ #checks for succesful birth and female sex
         #create new individual
         len.ind <- length(ind)
         informedProb <- rbeta(1, informed.distr.beta[1], informed.distr.beta[2])
-        ind[[len.ind+1]] <- list(alive=1, age=1, sex = round(rnorm(1, .5, .25)), 
-                                 informed=round(vertTransmission * informedProb + informedProb * (1/maxAgeClass)), 
+        ind[[len.ind+1]] <- list(alive=1, age=1, sex = rbinom(1, 1, sex.ratio),
+                                 informed=ifelse(vertTransmission==1, ind[[j]]$informed,
+                                                 rbeta(1, informed.distr.beta[1], informed.distr.beta[2])),
                                  boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
                                  mother = j, birthYr = i) # create offspring, inherits informed status of parent
-        #makes new row in interaction matrix for new individual with inheirited interactions
-        inheiritedConnections <- vector(nrow(interactionMatrix), mode = "numeric")
-        inheiritedConnections[which(interactionMatrix[indexJ,] <= 1)] <- 1
-        interactionMatrix <- rbind(interactionMatrix, inheiritedConnections)
-        #makes new col in interaction matrix for new individual with inheirited interactions
-        inheiritedConnections <- vector(ncol(interactionMatrix)+1, mode = "numeric")
-        inheiritedConnections[which(interactionMatrix[indexJ,] <= 1)] <- 1
-        interactionMatrix <- cbind(interactionMatrix, inheiritedConnections)
       }
+      
       #death decided by survival Rate, density, and increased uniformed mortality rate
-      death <- runif(1) <= survivalRate*(1 + (length(is.alive)/K)) + ((1 - curIndividual$informed) * h) # calculate a death probability for each individual 
-      if(death){
+      death <- 1- (survivalRate + survivalRate*(1 - (length(is.alive)/K)) - ((1 - curIndividual$informed) * h)) # calculate a death probability for each individual 
+      death <- rbinom(1,1, ifelse(death>1,1,ifelse(death<0,0,death)))
+      if(death==1){
         curIndividual$alive <- 0 # if death, reset alive = 0
       } else { #else, advance age + 1
         curIndividual$age <- curIndividual$age + 1 # advance age of parent
       }
       ind[[j]] <- curIndividual #update current individual in the total ind list
     }
-    
+
     #optional cropping of list "ind"
     # if(save.alive.only){
     #   is.dead <- which(sapply(ind, function(x) x$alive) == 0)
