@@ -14,12 +14,13 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
                               age.distr.lamba=5, # lambda value for starting age distribution based on poison distribution
                               informed.distr.beta=c(.5, 1), # probability of knowing information, beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
                               bold.distr.beta=c(2, 2), # probability of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-                              birthdeath.file="C:/Users/jmerkle/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
-                              result.folder="C:/Users/jmerkle/Desktop/results", #an empty folder where results will be saved.
+                              birthdeath.file="C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+                              result.folder="C:/Users/Zach/Desktop/results", #an empty folder where results will be saved.
                               set_seed=TRUE, # want to make results reproducible? Then set as TRUE
                               save_at_each_iter=TRUE, #should it write all results to file at each time step?
                               vertTransmission=0){ #0 if false, 1 if true, vertical transmission of info status
 
+  
   #manage packages
   if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)
     stop("You must install the following packages: igraph and Matrix.")
@@ -109,7 +110,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
       
       curIndividual$informed <- rbinom(1, 1, nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
 
-      socialPool <- data.frame(is.alive[-j], boldness[-j]) #pool of available individuals to socialize with
+      socialPool <- data.frame(is.alive[-indexJ], boldness[-indexJ]) #pool of available individuals to socialize with
       socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * ifelse(length(is.alive)>=K, 1, length(is.alive)/K) * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
       colnames(socialPool) <- c("is.alive", "boldness", "numInteractions")
       
@@ -128,10 +129,9 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
       
       socialPool$infotranser <- ifelse(socialPool$intIDinformed+socialPool$infotranser>0,1,0)  # now we need to update the interacting individuals and their info status
       for(g in 1:nrow(socialPool)){ #loop through interaction individuals
-        indexG <- which(is.alive == socialPool$is.alive[g])
+        indexG <- socialPool$is.alive[g]
         ind[[indexG]]$informed <- socialPool$infotranser[g] #update current interaction individual in total individuals dataset
       }
-      
       # birth section
       birth <- birthRate + birthRate * (1 - length(is.alive)/K) # calculate a birth probability for each individual that is alive
       birth <- rbinom(1,1, ifelse(birth<=0,0,birth))
