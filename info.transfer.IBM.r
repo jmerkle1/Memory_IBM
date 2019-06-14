@@ -164,7 +164,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
     # }
     
     # saving Population stats for final output
-    numb.died <- sum(is.alive %in% which(sapply(ind, function(x) x$alive) == 1) == FALSE)
+    numb.died <- length(which(sapply(ind[is.alive], function(x) x$alive) == 0))
     
     is.alive <- which(sapply(ind, function(x) x$alive) == 1)
     pop[[i+1]] <- is.alive 
