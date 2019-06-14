@@ -96,12 +96,14 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
   print(paste0("Looping through the ", t, " years."))
   for(i in seq(t)){ # loop for each time increment
     #prep that years data
+    # print(i)
     is.alive <- which(sapply(ind, function(x) x$alive) == 1) #just alive individuals from total list
     boldness <- sapply(ind[is.alive], function(x) x$boldness) #boldness of alive individuals
     interactionMatrix <- Matrix(data = 0,   #build a new interaction matrix for this time step!
                                 nrow = length(seq(is.alive)),
                                 ncol = length(seq(is.alive)), sparse = TRUE)
     for(j in is.alive){ #loop for each alive individual
+      # print(j)
       curIndividual <- ind[[j]] #assigns current individual
       indexJ <- which(is.alive == j)    
       ageClass <- d$ageClass[which(d$age == curIndividual$age)] #age class of current
@@ -134,7 +136,7 @@ info.transfer.IBM <- function(h=0.10, #increase in probability of death for unin
       }
       # birth section
       birth <- birthRate + birthRate * (1 - length(is.alive)/K) # calculate a birth probability for each individual that is alive
-      birth <- rbinom(1,1, ifelse(birth<=0,0,birth))
+      birth <- rbinom(1,1, ifelse(birth<=0,0,ifelse(birth>1,1,birth)))
       if(birth==1 && (ind[[j]]$sex == 1)){ #checks for succesful birth and female sex
         #create new individual
         len.ind <- length(ind)
