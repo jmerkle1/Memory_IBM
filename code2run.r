@@ -10,9 +10,9 @@ info.transfer.IBM(h=0.10, #increase in probability of death for uninformed
                   nl=0.01, # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
                   si=5, # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
                   infotransfer=0.2, # given an interaction, what is the probability that information is transfered (min=0, max=1)
-                  K=100, # carrying capacity
+                  K=250, # carrying capacity
                   N0=50, # starting number of individuals
-                  t=25, # time of simulation
+                  t=20, # time of simulation
                   sex.ratio=0.5, #what is the sex ratio of of the population/births?
                   age.distr.lamba=5, # lambda value for starting age distribution based on poison distribution
                   informed.distr.beta=c(.5, 1), # probability of knowing information, beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
