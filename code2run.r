@@ -4,7 +4,7 @@
 
 
 #source the function
-source("C:/Users/jmerkle/Documents/GitHub/Memory_IBM/info.transfer.IBM.R")
+source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.R")
 
 info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   nl=0.01, # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
@@ -21,8 +21,10 @@ info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   result.folder="C:/Users/jmerkle/Desktop/results", #an empty folder where results will be saved.
                   set_seed=FALSE, # want to make results reproducible? Then set as TRUE
                   save_at_each_iter=TRUE, #should all results be written to file at each time step?
-                  vertTransmission=1) # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
+                  vertTransmission=1 # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
+                  densityDependType = 0 # type of density dependence to use for interactions, negative = -1, No Density Dependence = 0, positive = 1
+                  ) 
 
 # You can simply run ALL of the following code, and then check your results folder for results
-source("C:/Users/jmerkle/Documents/GitHub/Memory_IBM/plotInfoTransferIBM.R")
-plotSocialIBMResults(result.folder="C:/Users/jmerkle/Desktop/results")
+source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
+plotSocialIBMResults(result.folder="C:/Users/Zach/Desktop/results")
