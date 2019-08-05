@@ -1,5 +1,5 @@
 learning <- 
-function(curIndividual, ageClass, maxAgeClass = 4, is.alive, boldness, interactionMatrix, ind, densityDependType = 0, indexJ, birth = 0){
+function(curIndividual, ageClass, maxAgeClass = 4, is.alive, boldness, interactionMatrix, ind, densityDependType = 0, indexJ, birth = 0, memory = 0, interactions, familiarBias = .1){
   curIndividual$informed <- rbinom(1, 1, nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
   if(birth == 1){
     socialPool <- data.frame(is.alive, boldness)
@@ -17,7 +17,9 @@ function(curIndividual, ageClass, maxAgeClass = 4, is.alive, boldness, interacti
     socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * ifelse(length(is.alive)>=K, 1, 1+(1-length(is.alive)/K)) * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
   }
   colnames(socialPool) <- c("is.alive", "boldness", "numInteractions")
-  
+  if(familiarBias > 0 && birth == 0){
+    socialPool$numInteractions <- socialPool$numInteractions + (interactions[-indexJ] * familiarBias)
+  }
   socialPool$intIDinformed <- sapply(ind[socialPool$is.alive], function(x) x$informed)
   if(birth == 0){
     interactionMatrix[-indexJ,indexJ] <- socialPool$numInteractions #update interaction matrix

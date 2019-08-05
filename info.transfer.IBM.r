@@ -18,10 +18,10 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
                               result.folder="C:/Users/jmerkle/Desktop/results", #an empty folder where results will be saved.
                               set_seed=FALSE, # want to make results reproducible? Then set as TRUE
                               save_at_each_iter=TRUE, #should all results be written to file at each time step?
-                              vertTransmission=1,
-                              densityDependType = 0,
-                              locationLearnFunction = "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/learning.IBM.R"){ # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
-
+                              vertTransmission=1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
+                              densityDependType = 0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
+                              locationLearnFunction = "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/learning.IBM.R",
+                              familiarBias = .1){#if 0, past interactions are not considered 
   
   #manage packages
   if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)
@@ -117,7 +117,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       birthRate <- d$birthRate[which(d$age == curIndividual$age)] #birth rate of current age class
       survivalRate <- d$survivalRate[which(d$age == curIndividual$age)] #survival rate of current age class
       
-      returnedList <- learning(curIndividual = curIndividual, ageClass = ageClass, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 0)
+      returnedList <- learning(curIndividual = curIndividual, ageClass = ageClass, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 0, memory = memory, interactions = interactions[[i]][indexJ,])
       curIndividual <- returnedList[1]
       ind <- returnedList[2]
       interactionMatrix <- returnedList[3]
@@ -175,7 +175,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
                                    informed=0, boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
                                    mother = j, birthYr = i)
           
-          returnedList <- learning(curIndividual = newIndividual, ageClass = 1, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 1)
+          returnedList <- learning(curIndividual = newIndividual, ageClass = 1, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 1, memory = memory)
           newIndividual <- returnedList[1]
           ind <- returnedList[2]
           interactionMatrix <- returnedList[3]
