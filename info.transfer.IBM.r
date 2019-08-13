@@ -14,14 +14,14 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
                               age.distr.lamba=4, # lambda value for starting age distribution based on poison distribution
                               informed.distr.beta=c(.5, 5), # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
                               bold.distr.beta=c(2, 5), # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-                              birthdeath.file="C:/Users/jmerkle/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
-                              result.folder="C:/Users/jmerkle/Desktop/results", #an empty folder where results will be saved.
+                              birthdeath.file="C:/Users/Yankee/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+                              result.folder="C:/Users/Yankee/Desktop/results", #an empty folder where results will be saved.
                               set_seed=FALSE, # want to make results reproducible? Then set as TRUE
                               save_at_each_iter=TRUE, #should all results be written to file at each time step?
                               vertTransmission=1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
                               densityDependType = 0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-                              locationLearnFunction = "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/learning.IBM.R",
-                              familiarBias = .1){#if 0, past interactions are not considered 
+                              locationLearnFunction = "C:/Users/Yankee/Documents/GitHub/Memory_IBM/Memory_IBM/learning.IBM.R",
+                              familiarBias = .4){#if 0, past interactions are not considered 
   
   #manage packages
   if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)
@@ -117,10 +117,10 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       birthRate <- d$birthRate[which(d$age == curIndividual$age)] #birth rate of current age class
       survivalRate <- d$survivalRate[which(d$age == curIndividual$age)] #survival rate of current age class
       
-      returnedList <- learning(curIndividual = curIndividual, ageClass = ageClass, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 0, memory = memory, interactions = interactions[[i]][indexJ,])
-      curIndividual <- returnedList[1]
-      ind <- returnedList[2]
-      interactionMatrix <- returnedList[3]
+      returnedList <- learning(nl = nl, curIndividual = curIndividual, ageClass = ageClass, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 0, memory = memory, pastInteractions = ifelse(i == 1, NULL, interactions[[i]][indexJ,]), familiarBias = ifelse(i == 1, 0, familiarBias))
+      curIndividual <- returnedList[[1]]
+      ind <- returnedList[[2]]
+      interactionMatrix <- returnedList[[3]]
       # curIndividual$informed <- rbinom(1, 1, nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
       # 
       # socialPool <- data.frame(is.alive[-indexJ], boldness[-indexJ]) #pool of available individuals to socialize with
@@ -155,11 +155,12 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       # }
       # birth section
       birth <- birthRate * (1 - length(is.alive)/K) # calculate a birth probability for each individual that is alive
-      birth <- rbinom(1,1, ifelse(birth<=0,0,ifelse(birth>1,1,birth)))
-      if(birth==1 && (ind[[j]]$sex == 1)){ #checks for succesful birth and female sex
+      birth <- rpois(1, birth)
+      if(birth>=1 && (ind[[j]]$sex == 1)){ #checks for succesful birth and female sex
         #create new individual
         len.ind <- length(ind)
-        if(vertTransmission = 1){
+        for(h in 1:birth){
+        if(vertTransmission == 1){
           ind[[len.ind+1]] <- list(alive=1, age=1, sex = rbinom(1, 1, sex.ratio),
                                  informed=ind[[j]]$informed,
                                  boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
@@ -175,11 +176,12 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
                                    informed=0, boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
                                    mother = j, birthYr = i)
           
-          returnedList <- learning(curIndividual = newIndividual, ageClass = 1, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 1, memory = memory)
-          newIndividual <- returnedList[1]
-          ind <- returnedList[2]
-          interactionMatrix <- returnedList[3]
+          returnedList <- learning(nl = nl, curIndividual = newIndividual, ageClass = 1, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 1, pastInteractions = NULL, memory = memory)
+          newIndividual <- returnedList[[1]]
+          ind <- returnedList[[2]]
+          interactionMatrix <- returnedList[[3]]
           ind[[len.ind+1]] <- newIndividual
+        }
         }
         }
       

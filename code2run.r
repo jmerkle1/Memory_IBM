@@ -4,7 +4,7 @@
 
 
 #source the function
-source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.R")
+source("C:/Users/Yankee/Documents/GitHub/Memory_IBM/info.transfer.IBM.R")
 
 info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   nl=0.01, # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
@@ -17,14 +17,15 @@ info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   age.distr.lamba=4, # lambda value for starting age distribution based on poison distribution
                   informed.distr.beta=c(.5, 5), # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
                   bold.distr.beta=c(2, 5), # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-                  birthdeath.file="C:/Users/jmerkle/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
-                  result.folder="C:/Users/jmerkle/Desktop/results", #an empty folder where results will be saved.
+                  birthdeath.file="C:/Users/Yankee/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+                  result.folder="C:/Users/Yankee/Desktop/results", #an empty folder where results will be saved.
                   set_seed=FALSE, # want to make results reproducible? Then set as TRUE
                   save_at_each_iter=TRUE, #should all results be written to file at each time step?
-                  vertTransmission=1 # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
-                  densityDependType = 0 # type of density dependence to use for interactions, negative = -1, No Density Dependence = 0, positive = 1
-                  ) 
+                  vertTransmission=1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
+                  densityDependType = 0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
+                  locationLearnFunction = "C:/Users/Yankee/Documents/GitHub/Memory_IBM/learning.IBM.R",
+                  familiarBias = .4) 
 
 # You can simply run ALL of the following code, and then check your results folder for results
-source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
-plotSocialIBMResults(result.folder="C:/Users/Zach/Desktop/results")
+source("C:/Users/Yankee/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
+plotSocialIBMResults(result.folder="C:/Users/Yankee/Desktop/results")
