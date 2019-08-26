@@ -95,3 +95,4 @@ tosave <- data.frame(time.stamp=Sys.time(), t=0, pop.size=length(pop[[1]]),birth
 
 #simulation starts here
 print(paste0("Looping through the ", t, " years."))
+

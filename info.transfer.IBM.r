@@ -117,73 +117,87 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       birthRate <- d$birthRate[which(d$age == curIndividual$age)] #birth rate of current age class
       survivalRate <- d$survivalRate[which(d$age == curIndividual$age)] #survival rate of current age class
       
-      returnedList <- learning(nl = nl, curIndividual = curIndividual, ageClass = ageClass, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 0, memory = memory, pastInteractions = ifelse(i == 1, NULL, interactions[[i]][indexJ,]), familiarBias = ifelse(i == 1, 0, familiarBias))
-      curIndividual <- returnedList[[1]]
-      ind <- returnedList[[2]]
-      interactionMatrix <- returnedList[[3]]
-      # curIndividual$informed <- rbinom(1, 1, nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
-      # 
-      # socialPool <- data.frame(is.alive[-indexJ], boldness[-indexJ]) #pool of available individuals to socialize with
-      # if(densityDependType == 1){
-      #   socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * length(is.alive)/K * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
-      # }
-      # if(densityDependType == 0){
-      #   socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
-      # }
-      # if(densityDependType == -1){
-      #   socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * ifelse(length(is.alive)>=K, 1, 1+(1-length(is.alive)/K)) * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
-      # }
-      # colnames(socialPool) <- c("is.alive", "boldness", "numInteractions")
-      # 
-      # socialPool$intIDinformed <- sapply(ind[socialPool$is.alive], function(x) x$informed)
-      # 
-      # interactionMatrix[-indexJ,indexJ] <- socialPool$numInteractions #update interaction matrix
-      # interactionMatrix[indexJ,-indexJ] <- socialPool$numInteractions #update interaction matrix
-      # socialPool$calc <- ifelse(curIndividual$informed==0 & socialPool$intIDinformed == 0, 0, 1)
-      # socialPool$infotranser <- do.call(c, lapply(1:nrow(socialPool), function(ii){
-      #   return(ifelse(sum(rbinom(socialPool$numInteractions[ii], 1, infotransfer))>0,1,0))
-      # }))
-      # socialPool$infotranser <- socialPool$infotranser*socialPool$calc
-      # if(curIndividual$informed==0 & sum(socialPool$infotranser)>0){   #if status is 0 or there was an interaction wher info was transfered, then put a 1 in there
-      #   curIndividual$informed <- 1
-      # }
-      # 
-      # socialPool$infotranser <- ifelse(socialPool$intIDinformed+socialPool$infotranser>0,1,0)  # now we need to update the interacting individuals and their info status
-      # for(g in 1:nrow(socialPool)){ #loop through interaction individuals
-      #   indexG <- socialPool$is.alive[g]
-      #   ind[[indexG]]$informed <- socialPool$infotranser[g] #update current interaction individual in total individuals dataset
-      # }
+      pastInteractionMods <- 0
+      if(i > 1 && familiarBias > 0){
+        pastInteractions <- interactions[[i]][indexJ,]
+        pastInteractionsIndex <- which(pastInteractions >= 1)
+        
+        if(sum(pop[[i]] %in% pastInteractionsIndex, na.rm = TRUE) > 0){
+          pastInteracts <- na.omit(pop[[i]][which(pop[[i]] %in% pastInteractionsIndex)])
+          pastInteractionsIndex <- pastInteractionsIndex[which(pastInteractionsIndex %in% pop[[i]])]
+          pastInteractMods <- vector("numeric", length = length(is.alive))
+          pastInteractMods[pastInteracts] <- pastInteractions[pastInteractionsIndex]
+        }
+      }
+      curIndividual$informed <- rbinom(1, 1, nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
+      socialPool <- data.frame(is.alive[-indexJ], boldness[-indexJ]) #pool of available individuals to socialize with
+      if(familiarBias > 0 && length(pastInteractionMods)>1){
+        if(densityDependType == 1){
+          socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * length(is.alive)/K * socialPool$boldness) + (pastInteractionMods[-indexJ] * familiarBias))# calculate a social interaction probability for each individual that is alive
+        }
+        if(densityDependType == 0){
+          socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * socialPool$boldness) + (pastInteractionMods[-indexJ] * familiarBias))# calculate a social interaction probability for each individual that is alive
+        }
+        if(densityDependType == -1){
+          socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * ifelse(length(is.alive)>=K, 1, 1+(1-length(is.alive)/K)) * socialPool$boldness) + (pastInteractionMods[-indexJ] * familiarBias))# calculate a social interaction probability for each individual that is alive
+        }
+      }
+      else{
+        if(densityDependType == 1){
+          socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * length(is.alive)/K * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
+        }
+        if(densityDependType == 0){
+          socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
+        }
+        if(densityDependType == -1){
+          socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * ifelse(length(is.alive)>=K, 1, 1+(1-length(is.alive)/K)) * socialPool$boldness))# calculate a social interaction probability for each individual that is alive
+        }
+      }
+      colnames(socialPool) <- c("is.alive", "boldness", "numInteractions")
+      
+      socialPool$intIDinformed <- sapply(ind[socialPool$is.alive], function(x) x$informed)
+      
+      interactionMatrix[-indexJ,indexJ] <- socialPool$numInteractions #update interaction matrix
+      interactionMatrix[indexJ,-indexJ] <- socialPool$numInteractions #update interaction matrix
+      
+      socialPool$calc <- ifelse(curIndividual$informed==0 & socialPool$intIDinformed == 0, 0, 1)
+      socialPool$infotransfer <- do.call(c, lapply(1:nrow(socialPool), function(ii){
+        return(ifelse(sum(rbinom(socialPool$numInteractions[ii], 1, infotransfer))>0,1,0))
+      }))
+      socialPool$infotransfer <- socialPool$infotransfer*socialPool$calc
+      if(curIndividual$informed==0 & sum(socialPool$infotransfer)>0){   #if status is 0 or there was an interaction wher info was transfered, then put a 1 in there
+        curIndividual$informed <- 1
+      }
+      
+      socialPool$infotransfer <- ifelse(socialPool$intIDinformed+socialPool$infotransfer>0,1,0)  # now we need to update the interacting individuals and their info status
+      for(g in 1:nrow(socialPool)){ #loop through interaction individuals
+        indexG <- socialPool$is.alive[g]
+        ind[[indexG]]$informed <- socialPool$infotransfer[g] #update current interaction individual in total individuals dataset
+      }
+      # returnedList <- learning(nl = nl, curIndividual = curIndividual, ageClass = ageClass, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, pastInteractionInds = pastInteractionMods, familiarBias = ifelse(i == 1, 0, familiarBias))
+      # curIndividual <- returnedList[[1]]
+      # ind <- returnedList[[2]]
+      # interactionMatrix <- returnedList[[3]]
+      
       # birth section
       birth <- birthRate * (1 - length(is.alive)/K) # calculate a birth probability for each individual that is alive
       birth <- rpois(1, birth)
-      if(birth>=1 && (ind[[j]]$sex == 1)){ #checks for succesful birth and female sex
+      if(birth>=1 && (ind[[j]]$sex == 1) && (ind[[j]]$age >= 1)){ #checks for succesful birth and female sex
         #create new individual
         len.ind <- length(ind)
         for(h in 1:birth){
-        if(vertTransmission == 1){
-          ind[[len.ind+1]] <- list(alive=1, age=1, sex = rbinom(1, 1, sex.ratio),
+          ind[[len.ind+1]] <- list(alive=1, age=0, sex = rbinom(1, 1, sex.ratio),
                                  informed=ind[[j]]$informed,
                                  boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
                                  mother = j, birthYr = i) # create offspring, inherits informed status of parent
           # inheiritedConnections <- vector(nrow(interactionMatrix), mode = "numeric")
           # inheiritedConnections[which(interactionMatrix[indexJ,] <= 1)] <- 1
-          inheiritedConnections <- interactionMatrix[indexJ,]
-          interactionMatrix <- rbind(interactionMatrix, inheiritedConnections)
-          interactionMatrix <- cbind(interactionMatrix, inheiritedConnections)
+          # inheiritedConnections <- interactionMatrix[indexJ,]
+          # interactionMatrix <- rbind(interactionMatrix, inheiritedConnections)
+          # interactionMatrix <- cbind(interactionMatrix, inheiritedConnections)
+        
         }
-        else{
-          newIndividual <- list(alive=1, age=1, sex = rbinom(1, 1, sex.ratio),
-                                   informed=0, boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
-                                   mother = j, birthYr = i)
-          
-          returnedList <- learning(nl = nl, curIndividual = newIndividual, ageClass = 1, maxAgeClass = maxAgeClass, is.alive = is.alive, boldness = boldness, interactionMatrix = interactionMatrix, ind = ind, densityDependType = densityDependType, indexJ = indexJ, birth = 1, pastInteractions = NULL, memory = memory)
-          newIndividual <- returnedList[[1]]
-          ind <- returnedList[[2]]
-          interactionMatrix <- returnedList[[3]]
-          ind[[len.ind+1]] <- newIndividual
-        }
-        }
-        }
+      }
       
       #death decided by survival Rate, density, and increased uniformed mortality rate
       death <- 1- (survivalRate*(1 - (length(is.alive)/K)) - ((1 - curIndividual$informed) * h)) # calculate a death probability for each individual 
@@ -203,6 +217,17 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     # }
     
     # saving Population stats for final output
+    if(vertTransmission == 1 && i > 1 && sum(sapply(ind[is.alive], function(x) x$age) == 1) > 0){
+      just.born <- which(sapply(ind[is.alive], function(x) x$age) == 1)
+      mothers <- sapply(ind[just.born], function(x) x$mother)
+      momIndex <- which(is.alive == mothers)
+      offspringIndex <- which(is.alive == just.born)
+      for(k in 1:length(offspringIndex)){
+        interactionMatrix[offspringIndex[k],] <- interactionMatrix[momIndex[k],]
+        interactionMatrix[,offspringIndex[k]] <- interactionMatrix[,momIndex[k]]
+      }
+    }
+    
     numb.died <- length(which(sapply(ind[is.alive], function(x) x$alive) == 0))
     
     is.alive <- which(sapply(ind, function(x) x$alive) == 1)
