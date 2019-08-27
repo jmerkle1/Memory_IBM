@@ -185,7 +185,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       if(birth>=1 && (ind[[j]]$sex == 1) && (ind[[j]]$age >= 1)){ #checks for succesful birth and female sex
         #create new individual
         len.ind <- length(ind)
-        for(h in 1:birth){
+        for(z in 1:birth){
           ind[[len.ind+1]] <- list(alive=1, age=0, sex = rbinom(1, 1, sex.ratio),
                                  informed=ind[[j]]$informed,
                                  boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
@@ -219,12 +219,25 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     # saving Population stats for final output
     if(vertTransmission == 1 && i > 1 && sum(sapply(ind[is.alive], function(x) x$age) == 1) > 0){
       just.born <- which(sapply(ind[is.alive], function(x) x$age) == 1)
-      mothers <- sapply(ind[just.born], function(x) x$mother)
+      just.born.index <- is.alive[just.born]
+      mothers <- sapply(ind[just.born.index], function(x) x$mother)
       momIndex <- which(is.alive == mothers)
-      offspringIndex <- which(is.alive == just.born)
-      for(k in 1:length(offspringIndex)){
-        interactionMatrix[offspringIndex[k],] <- interactionMatrix[momIndex[k],]
-        interactionMatrix[,offspringIndex[k]] <- interactionMatrix[,momIndex[k]]
+      if(length(momIndex) > 0){
+      for(k in 1:length(momIndex)){
+        if(length(momIndex) == 1){
+          curMom <- momIndex
+        }
+        else{
+          curMom <- momIndex[k]
+        }
+        curOffspring <- which(sapply(ind[just.born.index], function(x) x$mother) == is.alive[curMom])
+        curOffspring <- just.born[curOffspring]
+        interactionMatrix[curOffspring,] <- interactionMatrix[curMom,]
+        interactionMatrix[,curOffspring] <- interactionMatrix[,curMom]
+        interactionSum <- sum(interactionMatrix[curOffspring,])
+        interactionMatrix[curOffspring,curMom] <- interactionSum
+        interactionMatrix[curMom,curOffspring] <- interactionSum
+      }
       }
     }
     
