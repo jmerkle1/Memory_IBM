@@ -1,4 +1,4 @@
-h=0.20 #increase in probability of death for uninformed
+h=0.01 #increase in probability of death for uninformed
 nl=0.01 # naive learning probability of the oldest animals (i.e. the ones that have the highest naive learning)
 si=5 # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
 infotransfer=0.03 # given an interaction, what is the probability that information is transfered (min=0, max=1)
@@ -15,7 +15,6 @@ set_seed=FALSE # want to make results reproducible? Then set as TRUE
 save_at_each_iter=TRUE #should all results be written to file at each time step?
 vertTransmission=1 # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
 densityDependType = 0 #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-locationLearnFunction = "C:/Users/Yankee/Documents/GitHub/Memory_IBM/learning.IBM.R"
 familiarBias = .4
 
 if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)

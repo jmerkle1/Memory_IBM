@@ -20,7 +20,6 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
                               save_at_each_iter=TRUE, #should all results be written to file at each time step?
                               vertTransmission=1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
                               densityDependType = 0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-                              locationLearnFunction = "C:/Users/Yankee/Documents/GitHub/Memory_IBM/Memory_IBM/learning.IBM.R",
                               familiarBias = .4){#if 0, past interactions are not considered 
   
   #manage packages
@@ -109,6 +108,9 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     interactionMatrix <- Matrix(data = 0,   #build a new interaction matrix for this time step!
                                 nrow = length(seq(is.alive)),
                                 ncol = length(seq(is.alive)), sparse = TRUE)
+    if(length(is.alive) <= 1)
+      stop("Population has been reduced to less than 2 individuals")
+    
     for(j in is.alive){ #loop for each alive individual
       # print(j)
       curIndividual <- ind[[j]] #assigns current individual
@@ -118,8 +120,9 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       survivalRate <- d$survivalRate[which(d$age == curIndividual$age)] #survival rate of current age class
       
       pastInteractionMods <- 0
-      if(i > 1 && familiarBias > 0){
-        pastInteractions <- interactions[[i]][indexJ,]
+      if(i > 1 && familiarBias > 0 && ind[[j]]$age > 1){
+        pastIndex <- which(pop[[i]] == j)
+        pastInteractions <- interactions[[i]][pastIndex,]
         pastInteractionsIndex <- which(pastInteractions >= 1)
         
         if(sum(pop[[i]] %in% pastInteractionsIndex, na.rm = TRUE) > 0){
@@ -131,7 +134,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       }
       curIndividual$informed <- rbinom(1, 1, nl * ageClass/maxAgeClass * (1-curIndividual$informed)) # calculate a naive learning probability, depends on age class
       socialPool <- data.frame(is.alive[-indexJ], boldness[-indexJ]) #pool of available individuals to socialize with
-      if(familiarBias > 0 && length(pastInteractionMods)>1){
+      if(familiarBias > 0 && sum(pastInteractionMods)!=0){
         if(densityDependType == 1){
           socialPool$numInteractions <- rpois(nrow(socialPool), (si * curIndividual$boldness * length(is.alive)/K * socialPool$boldness) + (pastInteractionMods[-indexJ] * familiarBias))# calculate a social interaction probability for each individual that is alive
         }
@@ -224,19 +227,18 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       momIndex <- which(is.alive == mothers)
       if(length(momIndex) > 0){
       for(k in 1:length(momIndex)){
-        if(length(momIndex) == 1){
-          curMom <- momIndex
+        curMom <- ifelse(length(momIndex) == 1, momIndex, momIndex[k])
+        offspring <- which(sapply(ind[just.born.index], function(x) x$mother) == is.alive[curMom])
+        for(m in 1:length(offspring)){
+          curOffspring <- ifelse(length(offspring) == 1, just.born[offspring], just.born[offspring[m]])
+        
+          interactionMatrix[curOffspring,] <- interactionMatrix[curMom,]
+          interactionMatrix[,curOffspring] <- interactionMatrix[,curMom]
+        
+          interactionSum <- sum(interactionMatrix[curOffspring,])
+          interactionMatrix[curOffspring,curMom] <- interactionSum
+          interactionMatrix[curMom,curOffspring] <- interactionSum
         }
-        else{
-          curMom <- momIndex[k]
-        }
-        curOffspring <- which(sapply(ind[just.born.index], function(x) x$mother) == is.alive[curMom])
-        curOffspring <- just.born[curOffspring]
-        interactionMatrix[curOffspring,] <- interactionMatrix[curMom,]
-        interactionMatrix[,curOffspring] <- interactionMatrix[,curMom]
-        interactionSum <- sum(interactionMatrix[curOffspring,])
-        interactionMatrix[curOffspring,curMom] <- interactionSum
-        interactionMatrix[curMom,curOffspring] <- interactionSum
       }
       }
     }
