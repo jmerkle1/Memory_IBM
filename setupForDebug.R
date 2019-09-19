@@ -93,6 +93,10 @@ interactions[[1]] <- interactionMatrix
 tosave <- data.frame(time.stamp=Sys.time(), t=0, pop.size=length(pop[[1]]),births=NA, deaths=NA,
                      frac.informed=frac.informed[1], med.age=med.age[1])
 
+density <- (exp(density) - (density + 1))/2
+density <- ifelse(density > 2, 2, density)
+x <- seq(0,2,.001)
+
 #simulation starts here
 print(paste0("Looping through the ", t, " years."))
 
