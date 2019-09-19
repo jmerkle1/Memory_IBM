@@ -16,6 +16,7 @@ save_at_each_iter=TRUE #should all results be written to file at each time step?
 vertTransmission=1 # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
 densityDependType = 0 #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
 familiarBias = .4
+density = seq(0,2,.001)
 
 if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)
   stop("You must install the following packages: igraph and Matrix.")

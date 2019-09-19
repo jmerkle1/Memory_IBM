@@ -20,7 +20,8 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
                               save_at_each_iter=TRUE, #should all results be written to file at each time step?
                               vertTransmission=1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
                               densityDependType = 0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-                              familiarBias = .4){#if 0, past interactions are not considered 
+                              familiarBias = .4,
+                              density = seq(0,2,.001)){#if 0, past interactions are not considered 
   
   #manage packages
   if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)
@@ -98,6 +99,9 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
   tosave <- data.frame(time.stamp=Sys.time(), t=0, pop.size=length(pop[[1]]),births=NA, deaths=NA,
                        frac.informed=frac.informed[1], med.age=med.age[1])
   
+  density <- (exp(density) - (density + 1))/2
+  density <- ifelse(density > 2, 2, density)
+  x <- seq(0,2,.001)
   #simulation starts here
   print(paste0("Looping through the ", t, " years."))
   for(i in seq(t)){ # loop for each time increment
@@ -108,6 +112,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     interactionMatrix <- Matrix(data = 0,   #build a new interaction matrix for this time step!
                                 nrow = length(seq(is.alive)),
                                 ncol = length(seq(is.alive)), sparse = TRUE)
+    densitySurvVariable <- density[which(x == (length(is.alive)/K))]
     if(length(is.alive) <= 1)
       stop("Population has been reduced to less than 2 individuals")
     
@@ -203,7 +208,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       }
       
       #death decided by survival Rate, density, and increased uniformed mortality rate
-      death <- 1- (survivalRate*(1 - (length(is.alive)/K)) - ((1 - curIndividual$informed) * h)) # calculate a death probability for each individual 
+      death <- 1- (survivalRate*(1 - densitySurvVariable) - ((1 - curIndividual$informed) * h)) # calculate a death probability for each individual 
       death <- rbinom(1,1, ifelse(death>1,1,ifelse(death<0,0,death)))
       if(death==1){
         curIndividual$alive <- 0 # if death, reset alive = 0

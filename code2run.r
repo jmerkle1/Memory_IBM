@@ -23,7 +23,8 @@ info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   save_at_each_iter=TRUE, #should all results be written to file at each time step?
                   vertTransmission=1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
                   densityDependType = 0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-                  familiarBias = .4) 
+                  familiarBias = .4,
+                  density = seq(0,2,.001)) 
 
 # You can simply run ALL of the following code, and then check your results folder for results
 source("C:/Users/Yankee/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
