@@ -4,12 +4,12 @@
 
 
 #source the function
-source("C:/Users/Yankee/Documents/GitHub/Memory_IBM/info.transfer.IBM.R")
-results <- "C:/Users/Yankee/Desktop/results/Ovis_Can"
+source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.R")
+results <- "C:/Users/Zach/Desktop/results/Ovis_Can"
 
 info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   nl=0.01, # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
-                  si=5, # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
+                  si=4, # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
                   infotransfer=0.03, # given an interaction, what is the probability that information is transfered (min=0, max=1)
                   K=400, # carrying capacity
                   N0=50, # starting number of individuals
@@ -18,7 +18,7 @@ info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   age.distr.lamba=8, # lambda value for starting age distribution based on poison distribution
                   informed.distr.beta=c(.5, 5), # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
                   bold.distr.beta=c(2, 5), # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-                  birthdeath.file="C:/Users/Yankee/Documents/GitHub/Memory_IBM/Ovis canadensis/ageClass_OvisCa.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+                  birthdeath.file="C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/Ovis canadensis/ageClass_OvisCa.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
                   result.folder= results, #an empty folder where results will be saved.
                   set_seed=FALSE, # want to make results reproducible? Then set as TRUE
                   save_at_each_iter=TRUE, #should all results be written to file at each time step?
@@ -27,5 +27,5 @@ info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   familiarBias = .4) 
 
 # You can simply run ALL of the following code, and then check your results folder for results
-source("C:/Users/Yankee/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
+source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
 plotSocialIBMResults(result.folder=results)

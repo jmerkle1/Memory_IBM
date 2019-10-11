@@ -48,8 +48,6 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
   colnames(d) <- c("age", "ageClass", "birthRate", "survivalRate") #set column names of the age class, vitals data
   maxAgeClass=max(d$ageClass) #max age class in order to get a proportion of age class for age class based rates of naive learning
   
-  source(locationLearnFunction)
-  
   #create starting individual w attributes ("alive", "age", "informed"), initial population
   print("Creating initial individual database.")
   if(set_seed){
