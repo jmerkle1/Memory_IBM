@@ -12,7 +12,7 @@ info.transfer.IBM(h=0.20, #increase in probability of death for uninformed
                   si=4, # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
                   infotransfer=0.03, # given an interaction, what is the probability that information is transfered (min=0, max=1)
                   K=400, # carrying capacity
-                  N0=50, # starting number of individuals
+                  N0=150, # starting number of individuals
                   t=25, # how many years should the simulation run for?
                   sex.ratio=0.4, #what is the sex ratio of of the population/births?
                   age.distr.lamba=8, # lambda value for starting age distribution based on poison distribution
