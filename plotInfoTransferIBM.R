@@ -3,7 +3,7 @@
 # last update: June 2019
 
 
-plotSocialIBMResults <- function(result.folder="C:/Users/jmerkle/Desktop/results"){
+plotSocialIBMResults <- function(result.folder="C:/Users/Yankee/Desktop/results/MicroArv/1"){
   if(all(c("stringr","igraph","Matrix") %in% installed.packages()[,1])==FALSE)
     stop("You must install the following packages: igraph, stringr, and Matrix.")
   require(stringr)
@@ -70,13 +70,17 @@ plotSocialIBMResults <- function(result.folder="C:/Users/jmerkle/Desktop/results
     
   }))
   head(results.graph)
-  
+  if(max(results.graph$edge_density) != 0){
   # main plotting of graph results over time
-  png(paste0(result.folder,"/summary_graph_stats.png"), width=5, height=5, units="in", res=400)
-  par(mfrow=c(3,3), mai=c(.3,.3,.03,.03), mgp=c(1,.1,0),
-      tck=-0.02, cex.axis=.8)
+  # png(paste0(result.folder,"/summary_graph_stats.png"), width=5, height=5, units="in", res=400)
+  # par(mfrow=c(3,3), mai=c(.3,.3,.03,.03), mgp=c(1,.1,0),
+  #    tck=-0.02, cex.axis=.8)
   for(i in 2:ncol(results.graph)){
-    plot(results.graph[,1], results.graph[,i], type="l",xlab="Time step", ylab=names(results.graph)[i], lwd=3)
+    png(paste0(result.folder,"/graphs","/graph", colnames(results.graph)[i],".png"), res=400)
+    par(mai=c(.03,.03,.03,.03))
+    plot(results.graph[,1], results.graph[,i], type="l",xlab="Time step", ylab=names(results.graph)[i], lwd=3, ylim = c(0, max(results.graph[,i])))
+    dev.off()
+  }
   }
   dev.off()    #check your results folder for this and other figures!!!!!
   return("Check your results folder!!! There are 2 new summary figures as well as a folder full of network plots.")

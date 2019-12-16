@@ -107,10 +107,10 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     interactionMatrix <- Matrix(data = 0,   #build a new interaction matrix for this time step!
                                 nrow = length(seq(is.alive)),
                                 ncol = length(seq(is.alive)), sparse = TRUE)
-    if(length(is.alive) <= 1)
-      stop("Population has been reduced to less than 2 individuals")
-    if(length(is.alive)/K >= .75)
-      stop("Population has reached 3/4 K")
+    if(length(is.alive) > 1){
+      
+    if(length(is.alive)/K < .75){
+      
     
     for(j in is.alive){ #loop for each alive individual
       # print(j)
@@ -212,7 +212,6 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
       }
       ind[[j]] <- curIndividual #update current individual in the total ind list
     }
-
     #optional cropping of list "ind"
     # if(save.alive.only){
     #   is.dead <- which(sapply(ind, function(x) x$alive) == 0)
@@ -272,8 +271,9 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     Sys.sleep(.1)
     print(paste0(i, " of ", t, " finished ", "[", round(i/t*100,0), "%]"))
     
+    } 
+    }
   } # end of loop through t
-  
   #write out final files
   write.csv(tosave, paste0(result.folder,"/population_stats.csv"), row.names = FALSE)
   save(interactions, file = paste0(result.folder,"/interaction_matricies.RData"))
