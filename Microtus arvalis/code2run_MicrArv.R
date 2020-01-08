@@ -1,11 +1,11 @@
 # This code runs the information transfer IBM (info.transfer.IBM.R) and the plots the results
-# Written by Yankee Bell and Jerod Merkle
+# Written by Zach Bell and Jerod Merkle
 # June 2019
 
 
 #source the function
-source("C:/Users/Yankee/Documents/GitHub/Memory_IBM/info.transfer.IBM.R")
-source("C:/Users/Yankee/Documents/GitHub/Memory_IBM/plotInfoTransferIBM.R")
+source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.R")
+source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
 args <- list(0.20, #increase in probability of death for uninformed
              c(0.01, .05, .10, .15, .20), # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
              2, # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
@@ -17,8 +17,8 @@ args <- list(0.20, #increase in probability of death for uninformed
              1.5, # lambda value for starting age distribution based on poison distribution
              ".5 5", # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
              "2 5", # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-             "C:/Users/Yankee/Documents/GitHub/Memory_IBM/Microtus arvalis/ageClass_MicroArv.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
-             "C:/Users/Yankee/Desktop/results/MicroArv", #an empty folder where results will be saved.
+             "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/Microtus arvalis/ageClass_MicroArv.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+             "C:/Users/Zach/Desktop/results/MicroArv", #an empty folder where results will be saved.
              FALSE, # want to make results reproducible? Then set as TRUE
              TRUE, #should all results be written to file at each time step?
              1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
@@ -26,7 +26,7 @@ args <- list(0.20, #increase in probability of death for uninformed
              .4)
 
 args <- expand.grid(args)
-
+time1 <- Sys.time()
 for(i in 1:nrow(args)){
   info.transfer.IBM(h = args[i, 1], #increase in probability of death for uninformed
                   nl = args[i, 2], # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
@@ -49,6 +49,9 @@ for(i in 1:nrow(args)){
 
   # You can simply run ALL of the following code, and then check your results folder for results
   
-  plotSocialIBMResults(result.folder=paste("C:/Users/Yankee/Desktop/results/MicroArv", i, sep = "/"))
+  plotSocialIBMResults(result.folder=paste("C:/Users/Zach/Desktop/results/MicroArv", i, sep = "/"))
 
 }
+time2 <- Sys.time()
+Sys.sleep(.001) 
+print(time2 - time1)

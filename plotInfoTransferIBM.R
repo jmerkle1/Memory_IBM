@@ -30,7 +30,7 @@ plotSocialIBMResults <- function(result.folder="C:/Users/Yankee/Desktop/results/
   lines(results$t, 1-results$frac.informed, col="grey",lwd=3)
   legend("top", c("Informed","Uninformed"), lty=1, col=c("black","grey"), 
          inset=0.02, horiz=T, cex=.8)
-  dev.off()    #check your results folder for this figure!!!!!
+  while (!is.null(dev.list()))  dev.off()    #check your results folder for this figure!!!!!
   
   # build a results table of network stats and save out graph figures
   results.graph <- do.call(rbind, lapply(2:length(interactions), function(i){
@@ -55,7 +55,7 @@ plotSocialIBMResults <- function(result.folder="C:/Users/Yankee/Desktop/results/
     png(paste0(dr,"/graph",str_pad(i-1,3,pad="0"),".png"), width=5, height=5, units="in", res=400)
     par(mai=c(.03,.03,.03,.03))
     plot(g, layout=lo, vertex.label.cex=.4, vertex.size=7, edge.curved=.1, vertex.label=pop[[i]])
-    dev.off()
+    while (!is.null(dev.list()))  dev.off()
     
     #write out dataframe with dereived metrics from the graph
     return(data.frame(t=i-1, no_ids=length(V(g)),
@@ -79,9 +79,9 @@ plotSocialIBMResults <- function(result.folder="C:/Users/Yankee/Desktop/results/
     png(paste0(result.folder,"/graphs","/graph", colnames(results.graph)[i],".png"), res=400)
     par(mai=c(.03,.03,.03,.03))
     plot(results.graph[,1], results.graph[,i], type="l",xlab="Time step", ylab=names(results.graph)[i], lwd=3, ylim = c(0, max(results.graph[,i])))
-    dev.off()
+    while (!is.null(dev.list()))  dev.off()
   }
   }
-  dev.off()    #check your results folder for this and other figures!!!!!
+  while (!is.null(dev.list()))  dev.off()   #check your results folder for this and other figures!!!!!
   return("Check your results folder!!! There are 2 new summary figures as well as a folder full of network plots.")
 }
