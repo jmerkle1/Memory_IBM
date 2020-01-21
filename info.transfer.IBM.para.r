@@ -12,15 +12,16 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
                               t=25, # how many years should the simulation run for?
                               sex.ratio=0.5, #what is the sex ratio of of the population/births?
                               age.distr.lamba=4, # lambda value for starting age distribution based on poison distribution
-                              informed.distr.beta=c(.5, 5), # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
-                              bold.distr.beta=c(2, 5), # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-                              birthdeath.file="C:/Users/Yankee/Documents/GitHub/Memory_IBM/ageClass_Test.csv", #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+                              informed.distr.beta=".5 5", # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
+                              bold.distr.beta="2 5", # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
                               result.folder="C:/Users/Yankee/Desktop/results", #an empty folder where results will be saved.
                               set_seed=FALSE, # want to make results reproducible? Then set as TRUE
                               save_at_each_iter=TRUE, #should all results be written to file at each time step?
                               vertTransmission=1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?) 
                               densityDependType = 0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-                              familiarBias = .4){#if 0, past interactions are not considered 
+                              familiarBias = .4, #if 0, past interactions are not considered 
+                              d = d #birthdeath data
+                              ){
   
   #manage packages
   if(all(c("igraph","Matrix") %in% installed.packages()[,1])==FALSE)
@@ -40,11 +41,6 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     print("Warning! Your result.folder has something in it. Those files will be overwritten!")
   
   # bring in the age and birth and death rate data
-  if(file.exists(birthdeath.file)==FALSE)
-    stop("You didn't provide an existing file for birthdeath.file!")
-  d <- read.csv(file = birthdeath.file, colClasses = c("numeric", "numeric", "numeric", "numeric")) 
-  if(ncol(d)!= 4)
-    stop("Your birthdeath.file does not have 4 columns. The columns should be age, ageClass, birthRate, and survivalRate, in that order.")
   colnames(d) <- c("age", "ageClass", "birthRate", "survivalRate") #set column names of the age class, vitals data
   maxAgeClass=max(d$ageClass) #max age class in order to get a proportion of age class for age class based rates of naive learning
   
@@ -53,6 +49,9 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
   if(set_seed){
     set.seed(1)
   }
+  
+  informed.distr.beta <- c(as.numeric(strsplit(informed.distr.beta, " ")[[1]][1]), as.numeric(strsplit(informed.distr.beta, " ")[[1]][2]))
+  bold.distr.beta <- c(as.numeric(strsplit(bold.distr.beta, " ")[[1]][1]), as.numeric(strsplit(bold.distr.beta, " ")[[1]][2]))
   
   ind <- vector(mode="list", N0) 
   for(i in seq(ind)){

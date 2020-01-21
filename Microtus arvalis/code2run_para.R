@@ -45,10 +45,24 @@ require(stringr)
 sfLibrary(igraph)
 sfLibrary(Matrix)
 sfLibrary(stringr)
-sfExport("args", "d")
-sfClusterApplyLB(1:nrow(args), info.transfer.IBM, d)
+sfExport("args", "d", "info.transfer.IBM")
+sfClusterApplyLB(1:nrow(args), function(i){
+  Sys.sleep(1)
+  info.transfer.IBM(h=args[i,1],
+                    nl=args[i,2],
+                    si=args[i,3], infotransfer=args[i,4], K=args[i,5], N0=args[i,6], t=args[i,7], sex.ratio=args[i,8], age.distr.lamba=args[i,9], 
+                    informed.distr.beta=args[i,10], bold.distr.beta=args[i,11], result.folder=args[i,12],
+                    set_seed=args[i,13], save_at_each_iter=args[i,14], vertTransmission=args[i,15], densityDependType = args[i,16], 
+                    familiarBias = args[i,17], d = d)
+  })
+
+#sys.wait to stagger reads
+
 sfExport("results.folders", "plotInfoTransferIBM")
-sfClusterApplyLB(1:length(results.folders), plotInfoTransferIBM)
+sfClusterApplyLB(1:length(results.folders), function(i){ 
+                      sys.sleep(1)
+                      plotInfoTransferIBM(i)
+                      })
 sfStop()
 time2 <- Sys.time()
 Sys.sleep(.001) 
