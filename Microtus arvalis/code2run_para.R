@@ -51,7 +51,7 @@ sfClusterApplyLB(1:nrow(args), function(i){
   info.transfer.IBM(h=args[i,1],
                     nl=args[i,2],
                     si=args[i,3], infotransfer=args[i,4], K=args[i,5], N0=args[i,6], t=args[i,7], sex.ratio=args[i,8], age.distr.lamba=args[i,9], 
-                    informed.distr.beta=args[i,10], bold.distr.beta=args[i,11], result.folder=args[i,12],
+                    informed.distr.beta=as.character(args[i,10]), bold.distr.beta=as.character(args[i,11]), result.folder=paste(as.character(args[i,12]), i, sep = "/"),
                     set_seed=args[i,13], save_at_each_iter=args[i,14], vertTransmission=args[i,15], densityDependType = args[i,16], 
                     familiarBias = args[i,17], d = d)
   })
