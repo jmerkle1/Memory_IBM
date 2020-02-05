@@ -5,7 +5,7 @@
 
 #source the function
 source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.para.R")
-source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM.R")
+source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM_para.R")
 birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/Microtus arvalis/ageClass_MicroArv.csv" #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
   if(file.exists(birthdeath.file)==FALSE){
     stop("You didn't provide an existing file for birthdeath.file!")
@@ -57,12 +57,15 @@ sfClusterApplyLB(1:nrow(args), function(i){
   })
 
 #sys.wait to stagger reads
-
-sfExport("results.folders", "plotInfoTransferIBM")
-sfClusterApplyLB(1:length(results.folders), function(i){ 
-                      sys.sleep(1)
-                      plotInfoTransferIBM(i)
-                      })
+for(i in 1:length(results.folders)){
+  folder <- results.folders[i]
+  load(paste0(results.folders[i],"/interaction_matricies.RData"))
+  load(paste0(results.folders[i],"/population_data.RData"))  #don't really need this if ind data is written out
+  load(paste0(results.folders[i],"/individual_data.RData"))
+  results <- read.csv(paste0(results.folders[i],"/population_stats.csv"))
+  sfExport("results", "ind", "pop", "interactions", "folder")
+  sfClusterApplyLB(1, function(i){plotSocialIBMResults(results, ind, pop, interactions, folder)})
+}
 sfStop()
 time2 <- Sys.time()
 Sys.sleep(.001) 
