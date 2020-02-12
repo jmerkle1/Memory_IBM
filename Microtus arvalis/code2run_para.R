@@ -36,7 +36,7 @@ args <- list(0.20, #increase in probability of death for uninformed
 args <- expand.grid(args)
 
 time1 <- Sys.time()
-results.folders <- paste("C:/Users/Zach/Desktop/results/MicroArv", 1:nrow(args), sep = "/")
+results.folders <- paste("C:/Users/Zach/Desktop/results/MicroArv", paste0(1:nrow(args), gsub(":", "",strsplit(as.character(Sys.time()), " ")[[1]][2])), sep = "/")
 sfInit(parallel = TRUE, cpus = 2)
 require(snowfall)
 require(Matrix)
