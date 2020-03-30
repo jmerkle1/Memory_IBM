@@ -6,7 +6,7 @@
 #source the function
 source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.para.R")
 source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM_para.R")
-birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/Microtus arvalis/ageClass_MicroArv.csv" #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/Sitophilus oryzae/ageClass_SitoOryz.csv" #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
   if(file.exists(birthdeath.file)==FALSE){
     stop("You didn't provide an existing file for birthdeath.file!")
   }
@@ -15,28 +15,28 @@ birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/Microtu
     stop("Your birthdeath.file does not have 4 columns. The columns should be age, ageClass, birthRate, and survivalRate, in that order.")
   }
   
-args <- list(.20, #increase in probability of death for uninformed
-             c(.05, .1), # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
-             c(2,6,10), # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
-             c(0.01, .05, .10), # given an interaction, what is the probability that information is transfered (min=0, max=1)
-             2000, # carrying capacity
-             c(50,200,400), # starting number of individuals
+args <- list(c(.05, .10, .20), #increase in probability of death for uninformed
+             c(.01, .05, .1, .2), # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
+             c(0, 2, 5), # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
+             c(0.01, .03, .05, .10), # given an interaction, what is the probability that information is transfered (min=0, max=1)
+             40000, # carrying capacity
+             c(1000, 4000, 8000), # starting number of individuals
              25, # how many years should the simulation run for?
-             0.46, #what is the sex ratio of of the population/births?
-             c(.5,1.5,3), # lambda value for starting age distribution based on poison distribution
+             0.5, #what is the sex ratio of of the population/births?
+             c(2, 4, 6), # lambda value for starting age distribution based on poison distribution
              ".5 5", # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
              "2 5", # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
-             "C:/Users/Zach/Desktop/results/MicroArv", #an empty folder where results will be saved.
+             "C:/Users/Zach/Desktop/results/SitoOry", #an empty folder where results will be saved.
              FALSE, # want to make results reproducible? Then set as TRUE
              TRUE, #should all results be written to file at each time step?
              1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
              0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-             c(.2,.4,.6))
+             c(.2, .4, .6))
 
 args <- expand.grid(args)
 
 time1 <- Sys.time()
-results.folders <- paste("C:/Users/Zach/Desktop/results/MicroArv", paste0(1:nrow(args), gsub(":", "",strsplit(as.character(Sys.time()), " ")[[1]][2])), sep = "/")
+results.folders <- paste("C:/Users/Zach/Desktop/results/SitoOry", paste0(1:nrow(args), gsub(":", "",strsplit(as.character(Sys.time()), " ")[[1]][2])), sep = "/")
 for(i in 1:length(results.folders)){
   if(!dir.exists(results.folders[i])){
     dir.create(results.folders[i])
@@ -53,13 +53,14 @@ sfLibrary(Matrix)
 sfLibrary(stringr)
 sfExport("args", "d", "info.transfer.IBM")
 sfClusterApplyLB(1:nrow(args), function(i){
-  Sys.sleep(1)
+  Sys.sleep(.1)
   info.transfer.IBM(h=args[i,1],
                     nl=args[i,2],
                     si=args[i,3], infotransfer=args[i,4], K=args[i,5], N0=args[i,6], t=args[i,7], sex.ratio=args[i,8], age.distr.lamba=args[i,9], 
                     informed.distr.beta=as.character(args[i,10]), bold.distr.beta=as.character(args[i,11]), result.folder=args[i,12],
                     set_seed=args[i,13], save_at_each_iter=args[i,14], vertTransmission=args[i,15], densityDependType = args[i,16], 
                     familiarBias = args[i,17], d = d)
+  write.csv(paste0(args[i,12],"/params.csv"), arg[i,])
   })
 
 #sys.wait to stagger reads

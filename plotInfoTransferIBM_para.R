@@ -83,5 +83,7 @@ plotSocialIBMResults <- function(results = results, ind = ind, pop = pop, intera
   }
   }
   while (!is.null(dev.list()))  dev.off()   #check your results folder for this and other figures!!!!!
+  
+  write.csv(results.graph, "network_stats.csv", quote = F, row.names = F)
   return("Check your results folder!!! There are 2 new summary figures as well as a folder full of network plots.")
 }

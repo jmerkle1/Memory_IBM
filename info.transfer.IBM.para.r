@@ -61,6 +61,9 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
     if(ind[[i]]$age==0){   #can't have a 0
       ind[[i]]$age <- 1
     }
+    if(ind[[i]]$age>max(d$age)){   #can't have a 0
+      ind[[i]]$age <- max(d$age)
+    }
     informedProb <- rbeta(1, informed.distr.beta[1], informed.distr.beta[2]) #probability of knowing information, beta distribution ranges from 0 to 1
     ageClass <- d$ageClass[which(d$age == ind[[i]]$age)]
     ind[[i]]$informed <- round((informedProb + informedProb * (ageClass/maxAgeClass))/2) #0 if false, 1 if true, modified by age class proportion (we standardize so the values range from 0 to 1, based on the range could be 0 to 2)
@@ -82,7 +85,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
   
   frac.informed <- NaN * time # fraction of population that is informed
   info <- sapply(ind, function(x) x$informed)   
-  frac.informed[1] <- mean(info)
+  frac.informed[1] <- ifelse(is.na(mean(info)), 0, mean(info))
   
   med.age <- NaN * time
   ages <- sapply(ind, function(x) x$age)

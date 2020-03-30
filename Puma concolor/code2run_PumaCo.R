@@ -11,7 +11,7 @@ args <- list(0.20, #increase in probability of death for uninformed
              0, # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
              0.03, # given an interaction, what is the probability that information is transfered (min=0, max=1)
              100, # carrying capacity
-             10, # starting number of individuals
+             c(10, 20, 30), # starting number of individuals
              25, # how many years should the simulation run for?
              0.66, #what is the sex ratio of of the population/births?
              4, # lambda value for starting age distribution based on poison distribution
