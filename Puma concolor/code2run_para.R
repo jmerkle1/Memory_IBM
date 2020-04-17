@@ -16,14 +16,14 @@ birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/Puma co
   }
   
 args <- list(c(.05, .10, .20), #increase in probability of death for uninformed
-             c(.05, .1, .2), # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
-             c(0, 3, 5), # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
-             c(0.01, .05, .10), # given an interaction, what is the probability that information is transfered (min=0, max=1)
+             c(.05, .1, .2, .4), # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
+             c(0, 3, 5, 8), # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
+             c(0.01, .05, .10, .2), # given an interaction, what is the probability that information is transfered (min=0, max=1)
              100, # carrying capacity
              c(10, 20, 30), # starting number of individuals
              25, # how many years should the simulation run for?
              0.66, #what is the sex ratio of of the population/births?
-             c(2, 4, 8), # lambda value for starting age distribution based on poison distribution
+             c(2, 4, 8, 10), # lambda value for starting age distribution based on poison distribution
              ".5 5", # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
              "2 5", # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
              "C:/Users/Zach/Desktop/results/PumaCo", #an empty folder where results will be saved.
@@ -60,6 +60,7 @@ sfClusterApplyLB(1:nrow(args), function(i){
                     informed.distr.beta=as.character(args[i,10]), bold.distr.beta=as.character(args[i,11]), result.folder=args[i,12],
                     set_seed=args[i,13], save_at_each_iter=args[i,14], vertTransmission=args[i,15], densityDependType = args[i,16], 
                     familiarBias = args[i,17], d = d)
+  write.csv(file = paste0(args[i,12],"/params.csv"), args[i,])
   })
 
 #sys.wait to stagger reads

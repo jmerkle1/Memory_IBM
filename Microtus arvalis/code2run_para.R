@@ -60,6 +60,7 @@ sfClusterApplyLB(1:nrow(args), function(i){
                     informed.distr.beta=as.character(args[i,10]), bold.distr.beta=as.character(args[i,11]), result.folder=args[i,12],
                     set_seed=args[i,13], save_at_each_iter=args[i,14], vertTransmission=args[i,15], densityDependType = args[i,16], 
                     familiarBias = args[i,17], d = d)
+  write.csv(file = paste0(args[i,12],"/params.csv"), args[i,])
   })
 
 #sys.wait to stagger reads
