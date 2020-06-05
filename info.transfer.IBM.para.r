@@ -191,7 +191,7 @@ info.transfer.IBM <- function(h=0.20, #increase in probability of death for unin
         #create new individual
         len.ind <- length(ind)
         for(z in 1:birth){
-          ind[[len.ind+1]] <- list(alive=1, age=0, sex = rbinom(1, 1, sex.ratio),
+          ind[[len.ind+z]] <- list(alive=1, age=0, sex = rbinom(1, 1, sex.ratio),
                                  informed=ind[[j]]$informed,
                                  boldness = rbeta(1, bold.distr.beta[1], bold.distr.beta[2]), 
                                  mother = j, birthYr = i) # create offspring, inherits informed status of parent

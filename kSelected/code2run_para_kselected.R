@@ -15,23 +15,23 @@ birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/kSelect
     stop("Your birthdeath.file does not have 4 columns. The columns should be age, ageClass, birthRate, and survivalRate, in that order.")
   }
   
-args <- list(c(.03, .05, .10, .20), #increase in probability of death for uninformed
-             c(.01, .05, .1, .2), # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
-             c(2, 6, 10, 20, 30, 40), # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
-             c(0.01, .05, .10, .20), # given an interaction, what is the probability that information is transfered (min=0, max=1)
-             4000, # carrying capacity
-             c(400, 800, 1200, 1600), # starting number of individuals
-             25, # how many years should the simulation run for?
-             0.4, #what is the sex ratio of of the population/births?
-             c(1, 2, 3), # lambda value for starting age distribution based on poison distribution
+args <- list(c(.095, .19, .285), #increase in probability of death for uninformed
+             c(.1, .2, .3), # naive learning probability of the oldest animals (i.e., the ones that have the highest naive learning)
+             c(2, 6, 10, 20, 30), # maximum mean (i.e., lambda of poison distribution) number of interactions per pair (if animal has 1 bold, it interacts with an animal with 1 boldness, and population is at or above K, this is the lambda of the interaction distributions)
+             c(.05, .10, .20), # given an interaction, what is the probability that information is transfered (min=0, max=1)
+             1000, # carrying capacity
+             c(100, 200, 300), # starting number of individuals
+             30, # how many years should the simulation run for?
+             0.45, #what is the sex ratio of of the population/births?
+             c(.5, 1.5, 2.5), # lambda value for starting age distribution based on poison distribution
              ".5 5", # starting probability distribution of knowing information; beta distribution ranges from 0 to 1 (vector of 2 values: shape1 and shape2)
              "2 5", # starting probability distribution of being bold, beta distribution (vector of 2 values: shape1 and shape2)
              "C:/Users/Zach/Desktop/results/kSelect", #an empty folder where results will be saved.
              FALSE, # want to make results reproducible? Then set as TRUE
              TRUE, #should all results be written to file at each time step?
-             1, # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
+             c(1, 0), # When giving birth, should your information status be given to your offspring? 0 if false, 1 if true (i.e., is there vertical transmission of information?)
              0, #density dependence of interactions, set to 1 for positive density dependence, 0 for none, -1 for negative density dependence
-             c(.2, .4, .6))
+             c(.2, .5, .8))
 
 args <- expand.grid(args)
 
