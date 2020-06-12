@@ -6,7 +6,7 @@
 #source the function
 source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.para.R")
 source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM_para.R")
-birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/rSelect/ageClass_rSelect.csv" #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/rSelected/ageClass_rSelect.csv" #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
   if(file.exists(birthdeath.file)==FALSE){
     stop("You didn't provide an existing file for birthdeath.file!")
   }
@@ -46,6 +46,7 @@ args[,12] <- results.folders
 colnames(args) <- c("h", "nl", "si", "infotransfer", "K", "N0", "t", "sex.ratio", "age.distr.lamba", "informed.distr.beta", 
                     "bold.distr.beta", "result.folder", "set_seed", "save_at_each_iter", "vertTransmission", "densityDependType", 
                     "familiarBias")
+
 require(snowfall)
 require(Matrix)
 require(igraph)

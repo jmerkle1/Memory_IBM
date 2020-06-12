@@ -6,7 +6,7 @@
 #source the function
 source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/info.transfer.IBM.para.R")
 source("C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/plotInfoTransferIBM_para.R")
-birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/kSelect/ageClass_kSelect.csv" #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
+birthdeath.file <- "C:/Users/Zach/Documents/GitHub/Memory_IBM/Memory_IBM/kSelected/ageClass_kSelect.csv" #dataframe of age based birth and death rate for FEMALES only. The columns should be age, ageClass, birthRate, and survivalRate, in that order.
   if(file.exists(birthdeath.file)==FALSE){
     stop("You didn't provide an existing file for birthdeath.file!")
   }
@@ -34,7 +34,7 @@ args <- list(c(.095, .19, .285), #increase in probability of death for uninforme
              c(.2, .5, .8))
 
 args <- expand.grid(args)
-
+args <- args[1964:nrow(args),]
 time1 <- Sys.time()
 results.folders <- paste("C:/Users/Zach/Desktop/results/kSelect", paste0(1:nrow(args), gsub(":", "",strsplit(as.character(Sys.time()), " ")[[1]][2])), sep = "/")
 for(i in 1:length(results.folders)){
